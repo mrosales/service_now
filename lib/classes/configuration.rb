@@ -8,9 +8,16 @@ module ServiceNow
             "SN::Success: Configuration successful"
         end
 
-        def self.get_resource(query_hash = {}, displayvalue = false, table)
+        # Generates a RestClient resource for the given query
+        # Params:
+        # +query+:: Either a hash or array of hashes to represent a query.
+        #           arrays are joined by ORs, hashes by ANDs
+        # +displayvalue+:: true of false ServiceNow display value param
+        # +table+:: table to search (e.g. "incident" or "sys_user")
+        def self.get_resource(query = {}, displayvalue = false, table)
+            query_string = string_from_query(query)
             # to be filled in
-            RestClient::Resource.new(URI.escape($root_url + "/#{table}.do?JSON&sysparm_action=getRecords&sysparm_query=#{hash_to_query(query_hash)}&displayvalue=#{displayvalue}"), $username, $password)
+            RestClient::Resource.new(URI.escape($root_url + "/#{table}.do?JSON&sysparm_action=getRecords&sysparm_query=#{query_string}&displayvalue=#{displayvalue}"), $username, $password)
         end
 
         def self.post_resource(table)
@@ -22,6 +29,21 @@ module ServiceNow
         end
 
         private
+
+            # Constructs a ServiceNow sys_parm query from either an array or hash
+            # Arrays are joined by ORs and hashes are joined by ANDs
+            # Params:
+            # +query+:: Either an array or a hash representing a query
+            def self.string_from_query(query = {})
+                query_string = ""
+                if query.is_a?(Array)
+                    query_string = query.map {|q| hash_to_query(q)}.join('^OR')
+                else
+                    query_string = hash_to_query(query)
+                end
+                return query_string
+            end
+
             def self.hash_to_query(query_hash = {})
                 if query_hash.empty?
                     return ""
