@@ -1,6 +1,5 @@
 module ServiceNow
     class Configuration
-
         def self.configure(auth_hash = {})
             $root_url = auth_hash[:sn_url].sub(/(\/)+$/, '') #remove trailing slash if there are any
             $username = auth_hash[:sn_username]
@@ -24,20 +23,19 @@ module ServiceNow
         private
             def self.hash_to_query(query_hash = {})
                 if query_hash.empty?
-                    return ""
+                  # You're gonna have a bad time if you don't pass a query
+                  raise "SN::ERROR: You must provide a query!"
                 end
+                
                 query_string = []
-                query_hash.each do |k, v|
-                    key_str = k.to_s
-                    value_str = v.to_s
-                    # if we are querying based on short_description or description
-                    # we use a partial match
-                    if key_str == "short_description" || key_str == "description"
-                        query_string << key_str + "LIKE" + value_str
-                    else
-                        query_string << key_str + "=" + value_str
-                    end
+                
+                # Make sure we're always dealing with an array                
+                query_hash = [query_hash] if ! query_hash.is_a?(Array)
+
+                query_hash.each do |f|
+                  query_string.push f[:field] + f[:operator] + f[:query]
                 end
+                
                 query_string.join('^')
             end
     end
