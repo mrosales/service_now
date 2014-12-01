@@ -1,4 +1,14 @@
 module ServiceNow
+    
+    module IncidentState
+        UNASSIGNED="1"
+        ASSIGNED="2"
+        IN_PROGRESS="3"
+        ON_HOLD="4"
+        RESOLVED="6"
+        CLOSED="7"
+    end
+
     class Incident
 
         def inspect
@@ -66,6 +76,18 @@ module ServiceNow
             end
             @saved_on_sn = true
             self
+        end
+
+        def is_closed?
+            self.incident_state == IncidentState::CLOSED
+        end
+
+        def is_resolved?
+            self.incident_state == IncidentState::RESOLVED
+        end
+
+        def is_open?
+            not self.is_closed? and not self.is_resolved?
         end
 
         def self.find(inc_number)
