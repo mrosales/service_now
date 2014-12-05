@@ -69,8 +69,11 @@ module ServiceNow
             if inc_string.length > 7
                 raise "SN::Error: invalid Incident number"
             end
-            query_hash = {}
-            query_hash[:number] = "INC" + "0"*(7-inc_string.length) + inc_string
+            query_hash = {
+                :field    => "number",
+                :operator => "=",
+                :query    => "INC" + "0"*(7-inc_string.length) + inc_string
+            }
             response = Configuration.get_resource(query_hash, table = "incident").get();
             # returned hash
             hash = JSON.parse(response, { :symbolize_names => true })

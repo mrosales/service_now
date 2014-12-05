@@ -11,8 +11,11 @@ module ServiceNow
 
         def self.find(netid)
             User.check_configuration
-            query_hash = {}
-            query_hash[:user_name] = netid
+            query_hash = {
+                :field    => "user_name",
+                :operator => "=",
+                :query    => netid
+            }
             response = Configuration.get_resource(query_hash = query_hash, table = "sys_user").get()
             hash = JSON.parse(response, { :symbolize_names => true })
             # there should be only one
@@ -27,8 +30,11 @@ module ServiceNow
 
         def self.find_by_sys_id(sys_id)
             User.check_configuration
-            query_hash = {}
-            query_hash[:sys_id] = sys_id
+            query_hash = {
+                :field    => "sys_id",
+                :operator => "=",
+                :query    => sys_id
+            }
             response = Configuration.get_resource(query_hash = query_hash, table = "sys_user").get()
             hash = JSON.parse(response, { :symbolize_names => true })
             user = User.new(hash[:records][0])
@@ -42,8 +48,11 @@ module ServiceNow
 
         def self.find_by_name(name)
             User.check_configuration
-            query_hash = {}
-            query_hash[:name] = name
+            query_hash = {
+                :field    => "name",
+                :operator => "=",
+                :query    => name
+            }
             response = Configuration.get_resource(query_hash = query_hash, table = "sys_user").get()
             hash = JSON.parse(response, { :symbolize_names => true })
             user = User.new(hash[:records][0])
