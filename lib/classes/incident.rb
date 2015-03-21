@@ -8,6 +8,7 @@ module ServiceNow
         end
 
         def initialize(attributes = {}, saved_on_sn = false, internal_call = false)
+            return nil unless attributes
             Incident.check_configuration
             symbolized_attributes = Hash[attributes.map{|k, v| [k.to_sym, v]}]
             if !symbolized_attributes[:number].nil? && !internal_call # allow setting INC number if it's called internally
@@ -50,6 +51,7 @@ module ServiceNow
             else
                 response = Configuration.update_resource(self.number, table = "incident").post(self.attributes.to_json)
             end
+            response.force_encoding('utf-8') unless not response
             hash = JSON.parse(response, { :symbolize_names => true })
             # this is the object
             # and there is always only one
@@ -75,6 +77,7 @@ module ServiceNow
                 :query    => "INC" + "0"*(7-inc_string.length) + inc_string
             }
             response = Configuration.get_resource(query_hash, table = "incident").get();
+            response.force_encoding('utf-8') unless not response
             # returned hash
             hash = JSON.parse(response, { :symbolize_names => true })
             # return the Incident object
@@ -89,6 +92,7 @@ module ServiceNow
         def self.where(query_hash = {})
             Incident.check_configuration
             response = Configuration.get_resource(query_hash, table = "incident").get();
+            response.force_encoding('utf-8') unless not response
             hash = JSON.parse(response, { :symbolize_names => true })
             array_of_records = hash[:records]
             array_of_inc = []
