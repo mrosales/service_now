@@ -81,7 +81,7 @@ module ServiceNow
             # returned hash
             hash = JSON.parse(response, { :symbolize_names => true })
             # return the Incident object
-            inc_obj = Incident.new(attributes = hash[:records][0], saved_on_sn = true, internal_call = true)
+            inc_obj = Incident.new(attributes = hash[:result][0], saved_on_sn = true, internal_call = true)
             if inc_obj.attributes.nil?
                 "SN::Alert: No incident with incident number #{query_hash[:number]} found"
             else
@@ -94,7 +94,7 @@ module ServiceNow
             response = Configuration.get_resource(query_hash, table = "incident").get();
             response.force_encoding('utf-8') unless not response
             hash = JSON.parse(response, { :symbolize_names => true })
-            array_of_records = hash[:records]
+            array_of_records = hash[:result]
             array_of_inc = []
             array_of_records.each do |record|
                 array_of_inc << Incident.new(attributes = record, saved_on_sn = true, internal_call = true)
